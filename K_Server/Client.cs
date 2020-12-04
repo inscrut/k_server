@@ -9,13 +9,32 @@ namespace K_Server
     {
         public Client(TcpClient Client)
         {
-            // Код простой HTML-странички
-            string Html = "<html><body><h1>Test</h1></body></html>";
-            // Необходимые заголовки: ответ сервера, тип и длина содержимого. После двух пустых строк - само содержимое
-            string Str = "HTTP/1.1 200 OK\nContent-type: text/html\nContent-Length:" + Html.Length.ToString() + "\n\n" + Html;
+            //Получаем сообщение клиента
+
+            string Message = "";
+            byte[] Buffer = new byte[1024];
+            int Count;
+            while ((Count = Client.GetStream().Read(Buffer, 0, Buffer.Length)) > 0)
+            {
+                Message += Encoding.UTF8.GetString(Buffer, 0, Count);
+
+                if (Message.IndexOf("\r\n\r\n") >= 0 || Message.Length > 4096)
+                {
+                    Console.WriteLine(Message);
+                    break;
+                }
+            }
+
+            //
+            //Здесь будет вся логика
+            //
+                        
+            string Ans = "OK" + "\n\n";
             // Приведем строку к виду массива байт
-            byte[] Buffer = Encoding.ASCII.GetBytes(Str);
-            // Отправим его клиенту
+            Buffer = Encoding.ASCII.GetBytes(Ans);
+
+
+            // Ответ клиенту
             Client.GetStream().Write(Buffer, 0, Buffer.Length);
             // Закроем соединение
             Client.Close();

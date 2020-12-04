@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 
 namespace K_Server
 {
@@ -22,7 +23,15 @@ namespace K_Server
             {
                 // Принимаем новых клиентов
                 //Listener.AcceptTcpClient();
-                new Client(Listener.AcceptTcpClient());
+
+                //new Client(Listener.AcceptTcpClient());
+
+                // Принимаем нового клиента
+                TcpClient Client = Listener.AcceptTcpClient();
+                // Создаем поток
+                Thread Thread = new Thread(new ParameterizedThreadStart(ClientThread.ClientThrd));
+                // И запускаем этот поток, передавая ему принятого клиента
+                Thread.Start(Client);
             }
         }
 
