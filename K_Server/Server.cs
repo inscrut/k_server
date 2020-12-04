@@ -21,7 +21,8 @@ namespace K_Server
             while (true)
             {
                 // Принимаем новых клиентов
-                Listener.AcceptTcpClient();
+                //Listener.AcceptTcpClient();
+                new Client(Listener.AcceptTcpClient());
             }
         }
 
