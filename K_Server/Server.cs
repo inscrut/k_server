@@ -28,6 +28,9 @@ namespace K_Server
 
                 // Принимаем нового клиента
                 TcpClient Client = Listener.AcceptTcpClient();
+
+                Console.WriteLine("Add new thread");
+
                 // Создаем поток
                 Thread Thread = new Thread(new ParameterizedThreadStart(ClientThread.ClientThrd));
                 // И запускаем этот поток, передавая ему принятого клиента

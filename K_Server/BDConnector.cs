@@ -11,7 +11,7 @@ namespace K_Server
         {
             
             string ConnectionString = @"Data Source=.\SQLEXPRESS;
-                                      AttachDbFilename=c:\folder\SampleDatabase.mdf;
+                                      AttachDbFilename=Database.mdf;
                                       Integrated Security=True;
                                       Connect Timeout=30;
                                       User Instance=True";
