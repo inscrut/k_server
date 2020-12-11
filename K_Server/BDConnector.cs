@@ -77,5 +77,13 @@ namespace K_Server
             if (r.Length <= 0) return null;
             return r[0];
         }
+
+        public static string[] getChatsFlow(string _flow)
+        {
+            var r = CreateCommand("SELECT groupname FROM usergroups WHERE facults = \"" + _flow + "\"");
+            if (r == null) return null;
+            if (r.Length <= 0) return null;
+            return r;
+        }
     }
 }
