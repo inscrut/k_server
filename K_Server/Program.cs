@@ -11,6 +11,8 @@ namespace K_Server
 
             Console.WriteLine("Starting server . . .");
 
+            BDConnector.InitDB();
+            
             try
             {
                 new Server(80, ip);

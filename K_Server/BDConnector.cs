@@ -1,32 +1,63 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Data.SqlClient;
+using Microsoft.Data.Sqlite;
 
 namespace K_Server
 {
     static class BDConnector
     {
+        private static SqliteConnection connection = null;
+
         public static void InitDB()
         {
-            
-            string ConnectionString = @"Data Source=.\SQLEXPRESS;
-                                      AttachDbFilename=Database.mdf;
-                                      Integrated Security=True;
-                                      Connect Timeout=30;
-                                      User Instance=True";
-
+            connection = new SqliteConnection("Data Source=General.db");
+            Console.WriteLine("Connect to DB");
         }
-        public static void CreateCommand(string queryString,
-        string connectionString)
+        public static string[] CreateCommand(string queryString)
         {
-            using (SqlConnection connection = new SqlConnection(
-                       connectionString))
+            List<string> ans = new List<string>();
+
+            try
             {
-                SqlCommand command = new SqlCommand(queryString, connection);
-                command.Connection.Open();
-                command.ExecuteNonQuery();
+                connection.Open();
             }
+            catch(SqliteException e)
+            {
+                Console.WriteLine("ERR: (open db) " + e.Message);
+                return null;
+            }
+
+            var command = connection.CreateCommand();
+
+            command.CommandText = queryString;
+
+            try
+            {
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var st = reader.GetString(0);
+                        ans.Add(st);
+                    }
+                }
+
+                connection.Close();
+            }
+            catch (SqliteException e)
+            {
+                Console.WriteLine("ERR: (exec db) " + e.Message);
+                return null;
+            }
+
+            return ans.ToArray();
+        }
+
+        public static string getFacult(string _group)
+        {
+            var r = CreateCommand("SELECT facults FROM usergroups WHERE groupname = \""+ _group  + "\"");
+            return r[0];
         }
     }
 }
