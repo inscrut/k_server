@@ -10,6 +10,10 @@ namespace K_Server
     {
         private string login = "";
         private string passwd = "";
+
+        private string ugroup = "";
+        private string ufacult = "";
+
         public Client(TcpClient Client)
         {
             string _s_ip_cl = (Client.Client.LocalEndPoint as IPEndPoint).Address.ToString();
@@ -35,7 +39,11 @@ namespace K_Server
                     {
                         Message += Encoding.UTF8.GetString(Buffer, 0, Count);
 
-                        if (Message.Contains("\r\n\r\n") || Message.Length > 1024) break;
+                        if (Message.Contains("\r\n\r\n") || Message.Length > 1024)
+                        {
+                            Message = Message.Replace("\r\n\r\n", "");
+                            break;
+                        }
                     }
                 }
                 catch (System.IO.IOException e)
@@ -54,7 +62,7 @@ namespace K_Server
                 //
                 Console.WriteLine(_s_ip_cl + ": " + Message);
 
-                if (Message == "LOGIN\r\n\r\n")
+                if (Message == "LOGIN")
                 {
                     status = 1;
                     Ans = "OK\r\n\r\n";
@@ -62,20 +70,20 @@ namespace K_Server
 
                 else if(status == 1)
                 {
-                    login = Message.Replace("\r\n\r\n", "");
+                    login = Message;
                     status = 2;
                     continue;
                 }
 
                 else if(status == 2)
                 {
-                    passwd = Message.Replace("\r\n\r\n", "");
+                    passwd = Message;
                     status = 3;
                 }
 
                 if(status == 3)
                 {
-                    //check log and pass
+                    //check login and pass
                     var ch_pswd = BDConnector.getPasswd(login);
 
                     if (ch_pswd == null)
@@ -87,6 +95,10 @@ namespace K_Server
                         //if ok
                         Ans = "ACCEPT\r\n\r\n";
                         status = 4;
+
+                        //get data about user
+                        ugroup = BDConnector.getGroup(login);
+                        ufacult = BDConnector.getFacult(ugroup);
                     }
                     else
                     {
@@ -95,7 +107,7 @@ namespace K_Server
                     
                 }
 
-                if (Message == "BYE\r\n\r\n") break;
+                if (Message == "BYE\r\n\r\n") break; //close conn
 
                 
 
@@ -105,7 +117,11 @@ namespace K_Server
                 Client.GetStream().Write(Buffer, 0, Buffer.Length);
 
                 if (status == 3) break; //close connection
-                if (status == 4) status = 5; //auth'ed
+                if (status == 4)
+                {
+                    status = 5; //auth'ed
+                    Console.WriteLine(_s_ip_cl + ": (" + login + ") auth'ed (" + ugroup + ", " + ufacult + ")");
+                }
             }
                        
             

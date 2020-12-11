@@ -69,5 +69,13 @@ namespace K_Server
             if (r.Length <= 0) return null;
             return r[0];
         }
+
+        public static string getGroup(string _user)
+        {
+            var r = CreateCommand("SELECT ugroup FROM users WHERE username = \"" + _user + "\"");
+            if (r == null) return null;
+            if (r.Length <= 0) return null;
+            return r[0];
+        }
     }
 }
