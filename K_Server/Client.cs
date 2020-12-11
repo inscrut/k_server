@@ -29,15 +29,24 @@ namespace K_Server
             {
                 Message = "";
                 //Получаем сообщение клиента
-                while ((Count = Client.GetStream().Read(Buffer, 0, Buffer.Length)) > 0)
+                try
                 {
-                    Message += Encoding.UTF8.GetString(Buffer, 0, Count);
-
-                    if (Message.IndexOf("\r\n\r\n") >= 0 || Message.Length > 1024)
+                    while ((Count = Client.GetStream().Read(Buffer, 0, Buffer.Length)) > 0)
                     {
-                        
-                        break;
+                        Message += Encoding.UTF8.GetString(Buffer, 0, Count);
+
+                        if (Message.Contains("\r\n\r\n") || Message.Length > 1024) break;
                     }
+                }
+                catch (System.IO.IOException e)
+                {
+                    Console.WriteLine(_s_ip_cl + ": (ERR):" + e.Message);
+                    break;
+                }
+                catch
+                {
+                    Console.WriteLine(_s_ip_cl + ": (ERR): Непредвиденная ошибка");
+                    break;
                 }
 
                 //
@@ -53,32 +62,50 @@ namespace K_Server
 
                 else if(status == 1)
                 {
-                    login = Message;
+                    login = Message.Replace("\r\n\r\n", "");
                     status = 2;
                     continue;
                 }
 
                 else if(status == 2)
                 {
-                    passwd = Message;
+                    passwd = Message.Replace("\r\n\r\n", "");
                     status = 3;
                 }
 
                 if(status == 3)
                 {
                     //check log and pass
+                    var ch_pswd = BDConnector.getPasswd(login);
 
-                    //if ok
-                    Ans = "ACCEPT\r\n\r\n";
-                    status = 4;
+                    if (ch_pswd == null)
+                    {
+                        Ans = "DENY\r\n\r\n";
+                    }
+                    else if (ch_pswd == passwd)
+                    {
+                        //if ok
+                        Ans = "ACCEPT\r\n\r\n";
+                        status = 4;
+                    }
+                    else
+                    {
+                        Ans = "DENY\r\n\r\n";
+                    }
+                    
                 }
 
                 if (Message == "BYE\r\n\r\n") break;
+
+                
 
                 // Приведем строку к виду массива байт
                 Buffer = Encoding.ASCII.GetBytes(Ans);
                 // Ответ клиенту
                 Client.GetStream().Write(Buffer, 0, Buffer.Length);
+
+                if (status == 3) break; //close connection
+                if (status == 4) status = 5; //auth'ed
             }
                        
             

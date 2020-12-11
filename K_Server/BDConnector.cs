@@ -57,6 +57,16 @@ namespace K_Server
         public static string getFacult(string _group)
         {
             var r = CreateCommand("SELECT facults FROM usergroups WHERE groupname = \""+ _group  + "\"");
+            if (r == null) return null;
+            if (r.Length <= 0) return null;
+            return r[0];
+        }
+
+        public static string getPasswd(string _user)
+        {
+            var r = CreateCommand("SELECT passwd FROM users WHERE username = \"" + _user + "\"");
+            if (r == null) return null;
+            if (r.Length <= 0) return null;
             return r[0];
         }
     }
