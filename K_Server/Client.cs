@@ -107,8 +107,39 @@ namespace K_Server
                     
                 }
 
-                if (Message == "BYE\r\n\r\n") break; //close conn
+                if (Message == "BYE") break; //close conn
 
+                if(status == 5) //auth user msgs
+                {
+                    if(Message.Contains("GET MSG")) //GET MSG 1abc23
+                    {
+                        var flw = Message.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        if(flw.Length != 3)
+                        {
+                            Ans = "BAD RQST\r\n\r\n";
+                            status = 3; //close conn
+                        }
+
+                        Ans = "";
+                        foreach (var sub in BDConnector.getLastMsgGrp(flw[2]))
+                        {
+                            Ans += sub + ";";
+                        }
+
+                    }
+
+                    else if (Message.Contains("GET CHATS"))
+                    {
+                        Ans = "";
+                        foreach (var sub in BDConnector.getChatsFlow(ufacult))
+                        {
+                            Ans += sub + ";";
+                        }
+
+                    }
+
+                    Ans += "\r\n\r\n";
+                }
                 
 
                 // Приведем строку к виду массива байт
