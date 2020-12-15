@@ -157,8 +157,7 @@ namespace K_Server
 
         public static void sendMsg(string _flw, string _grp, string _un, string _msg)
         {
-            DateTime localDate = DateTime.Now;
-            string cultureNames = "ru-RU";
+            DateTime localDate = DateTime.Now;            
 
             try
             {
@@ -171,7 +170,7 @@ namespace K_Server
 
             var command = connection.CreateCommand();
 
-            command.CommandText = "INSERT INTO chats (flow, ugroup, username, time, message) VALUES (\"" + _flw + "\", \"" + _grp + "\", \"" + _un + "\", \"" + localDate.ToString(cultureNames)+ "\", \"" + _msg + "\");";
+            command.CommandText = "INSERT INTO chats (flow, ugroup, username, time, message) VALUES (\"" + _flw + "\", \"" + _grp + "\", \"" + _un + "\", \"" + localDate.ToString("G") + "\", \"" + _msg + "\");";
 
             try
             {
