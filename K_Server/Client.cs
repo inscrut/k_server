@@ -111,21 +111,22 @@ namespace K_Server
 
                 if(status == 5) //auth user msgs
                 {
-                    if(Message.Contains("GET MSG")) //GET MSG 1abc23
+                    if (Message.Contains("GET MSG")) //GET MSG 1abc23
                     {
                         var flw = Message.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                        if(flw.Length != 3)
+                        if (flw.Length != 3)
                         {
                             Ans = "BAD RQST\r\n\r\n";
                             status = 3; //close conn
                         }
-
-                        Ans = "";
-                        foreach (var sub in BDConnector.getLastMsgGrp(flw[2]))
+                        else
                         {
-                            Ans += sub + ";";
+                            Ans = "";
+                            foreach (var sub in BDConnector.getLastMsgGrp(flw[2]))
+                            {
+                                Ans += sub + ";";
+                            }
                         }
-
                     }
 
                     else if (Message.Contains("GET CHATS"))
@@ -135,7 +136,29 @@ namespace K_Server
                         {
                             Ans += sub + ";";
                         }
+                    }
 
+                    else if (Message.Contains("SEND CHAT"))
+                    {
+                        //var flw = Message.Split(new char[] { '~' }, StringSplitOptions.RemoveEmptyEntries);
+                        var flw = Message.Split("SEND CHAT");
+                        if (flw.Length != 2)
+                        {
+                            Ans = "BAD RQST\r\n\r\n";
+                            status = 3; //close conn
+                        }
+                        else
+                        {
+                            string ugrp = "";
+                            flw = Message.Split(' ');
+
+                            ugrp = flw[2];
+
+                            flw = Message.Split("SEND CHAT " + ugrp);
+
+                            BDConnector.sendMsg(ufacult, ugrp, login, flw[1]);
+                            Ans = "OK";
+                        }
                     }
 
                     Ans += "\r\n\r\n";

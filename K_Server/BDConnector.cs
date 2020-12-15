@@ -154,5 +154,34 @@ namespace K_Server
 
             return ans.ToArray();
         }
+
+        public static void sendMsg(string _flw, string _grp, string _un, string _msg)
+        {
+            DateTime localDate = DateTime.Now;
+            string cultureNames = "ru-RU";
+
+            try
+            {
+                connection.Open();
+            }
+            catch (SqliteException e)
+            {
+                Console.WriteLine("ERR: (open db) " + e.Message);
+            }
+
+            var command = connection.CreateCommand();
+
+            command.CommandText = "INSERT INTO chats (flow, ugroup, username, time, message) VALUES (\"" + _flw + "\", \"" + _grp + "\", \"" + _un + "\", \"" + localDate.ToString(cultureNames)+ "\", \"" + _msg + "\");";
+
+            try
+            {
+                var reader = command.ExecuteReader();
+                connection.Close();
+            }
+            catch (SqliteException e)
+            {
+                Console.WriteLine("ERR: (exec db) " + e.Message);
+            }
+        }
     }
 }
